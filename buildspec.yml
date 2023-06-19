@@ -1,0 +1,22 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      docker: 19
+    commands:
+      - apt-get update
+      - apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+      - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+      - add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+      - apt-get update
+      - apt-get install -y docker-ce
+      - curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+      - chmod +x kubectl && mv kubectl /usr/local/bin/
+      - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+
+  build:
+    commands:
+      - helm repo add mwaa https://apache-airflow.github.io/airflow-helm
+      - helm repo update
+      - helm upgrade --install my-mwaa mwaa/airflow --version 1.0.0 --namespace my-namespace
